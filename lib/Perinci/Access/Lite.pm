@@ -124,6 +124,13 @@ This includes: Riap::Simple over pipe/TCP socket.
 =back
 
 
+=head1 METHODS
+
+=head2 new => obj
+
+=head2 $pa->request($action, $url, $extra) => hash
+
+
 =head1 SEE ALSO
 
 L<Perinci::Access>
