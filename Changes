@@ -1,5 +1,10 @@
 Revision history for Perinci-Access-Lite
 
+0.02     2014-09-03 (PERLANCAR)
+
+         - Add HTTP(S) support.
+
+
 0.01     2014-09-03 (PERLANCAR)
 
          - First, early release. No tests yet.
