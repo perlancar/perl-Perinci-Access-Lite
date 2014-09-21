@@ -50,7 +50,8 @@ subtest "local (pl)" => sub {
     test_riap(
         name   => 'list pkg',
         action => 'list',
-        uri    => '/Perinci/Examples/',
+        uri    => '/Perinci/Examples/Tx/',
+        result => ['check_state'],
     );
 };
 

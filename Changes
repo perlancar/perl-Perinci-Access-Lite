@@ -1,5 +1,14 @@
 Revision history for Perinci-Access-Lite
 
+0.03     2014-09-21 (PERLANCAR)
+
+         - Support 'list' action (not completely).
+
+         - Expand documentation a bit.
+
+         - Some minor tweaks to responses.
+
+
 0.02     2014-09-03 (PERLANCAR)
 
          - Add HTTP(S) support.

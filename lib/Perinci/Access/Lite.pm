@@ -46,7 +46,7 @@ sub request {
                 if length($func);
             no strict 'refs';
             my $spec = \%{"$mod\::SPEC"};
-            return [200, "OK (list)", [sort keys %$spec]];
+            return [200, "OK (list)", [grep {/\A\w+\z/} sort keys %$spec]];
         } elsif ($action eq 'meta' || $action eq 'call') {
             return [502, "Action 'call' not implemented for package entity"]
                 if !length($func) && $action eq 'call';
@@ -155,6 +155,12 @@ prerequisites but does fewer things. The things it supports:
 =over
 
 =item * Local (in-process) access to Perl modules and functions
+
+Currently only C<call>, C<meta>, and C<list> actions are implemented. Variables
+and other entities are not yet supported.
+
+The C<list> action only gathers keys from C<%SPEC> and do not yet list
+subpackages.
 
 =item * HTTP/HTTPS
 
