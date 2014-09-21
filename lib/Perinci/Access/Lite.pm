@@ -37,7 +37,13 @@ sub request {
         require "$mod.pm" unless __package_exists($mod);
         $mod =~ s!/!::!g;
 
-        if ($action eq 'meta' || $action eq 'call') {
+        if ($action eq 'list') {
+            no strict 'refs';
+            my $spec = \%{"$mod\::SPEC"};
+            return [200, "OK (list)", [sort keys %$spec]];
+        } elsif ($action eq 'meta' || $action eq 'call') {
+            return [502, "Action 'call' not implemented for package entity"]
+                if !length($func) && $action eq 'call';
             my $meta;
             {
                 no strict 'refs';
@@ -53,7 +59,7 @@ sub request {
 
             require Perinci::Sub::Normalize;
             $meta = Perinci::Sub::Normalize::normalize_function_metadata($meta);
-            return [200, "OK", $meta] if $action eq 'meta';
+            return [200, "OK ($action)", $meta] if $action eq 'meta';
 
             # convert args
             my $args = $extra->{args} // {};
