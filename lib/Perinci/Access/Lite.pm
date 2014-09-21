@@ -138,9 +138,25 @@ sub request {
 =head1 DESCRIPTION
 
 This module is a lightweight alternative to L<Perinci::Access>. It has less
-prerequisites but does fewer things. Differences with Perinci::Access:
+prerequisites but does fewer things. The things it supports:
 
 =over
+
+=item * Local (in-process) access to Perl modules and functions
+
+=item * HTTP/HTTPS
+
+=item * HTTP over Unix socket
+
+=back
+
+Differences with Perinci::Access:
+
+=over
+
+=item * For network access, uses HTTP::Tiny module family instead of LWP
+
+This results in fewer dependencies.
 
 =item * No wrapping, no argument checking
 
