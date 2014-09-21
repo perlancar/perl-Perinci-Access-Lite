@@ -34,10 +34,16 @@ sub request {
     if ($url =~ m!\A(?:pl:)?/(\w+(?:/\w+)*)/(\w*)\z!) {
         my ($mod, $func) = ($1, $2);
         # skip if package already exists, e.g. 'main'
-        require "$mod.pm" unless __package_exists($mod);
+        unless (__package_exists($mod)) {
+            eval { require "$mod.pm" };
+            return [500, "Can't load module $mod: $@"] if $@;
+        }
         $mod =~ s!/!::!g;
 
         if ($action eq 'list') {
+            return [502, "Action 'list' not implemented for ".
+                        "non-package entities"]
+                if length($func);
             no strict 'refs';
             my $spec = \%{"$mod\::SPEC"};
             return [200, "OK (list)", [sort keys %$spec]];
