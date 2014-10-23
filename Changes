@@ -1,5 +1,10 @@
 Revision history for Perinci-Access-Lite
 
+0.04     2014-10-23 (PERLANCAR)
+
+         - Support Riap 1.2 (check and strip 'riap.*' keys).
+
+
 0.03     2014-09-21 (PERLANCAR)
 
          - Support 'list' action (not completely).
