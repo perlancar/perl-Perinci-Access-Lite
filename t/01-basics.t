@@ -27,7 +27,7 @@ subtest "local (pl)" => sub {
         name   => 'call pkg',
         action => 'call',
         uri    => '/Perinci/Examples/',
-        status => 502,
+        status => 501,
     );
     test_riap(
         name   => 'meta func',
@@ -45,7 +45,7 @@ subtest "local (pl)" => sub {
         name   => 'list func',
         action => 'list',
         uri    => '/Perinci/Examples/gen_array',
-        status => 502,
+        status => 501,
     );
     test_riap(
         name   => 'list pkg',
@@ -67,6 +67,10 @@ sub test_riap {
         my $res = $pa->request($args{action}, $args{uri}, $args{extras} // {});
         my $exp_st = $args{status} // 200;
         is($res->[0], $exp_st, "status") or return;
+        if (exists $args{envres}) {
+            is_deeply($res, $args{envres}, 'envres')
+                or diag explain $res;
+        }
         if (exists $args{result}) {
             is_deeply($res->[2], $args{result}, 'result')
                 or diag explain $res;

@@ -7,6 +7,8 @@ use 5.010001;
 use strict;
 use warnings;
 
+use Perinci::AccessUtil::Check qw(check_riap_res);
+
 sub new {
     my ($class, %args) = @_;
     bless \%args, $class;
@@ -31,6 +33,12 @@ sub request {
 
     $extra //= {};
 
+    my $v = $extra->{v} // 1.1;
+    if ($v ne '1.1' && $v ne '1.2') {
+        return [501, "Riap protocol not supported, must be 1.1 or 1.2"];
+    }
+
+    my $res;
     if ($url =~ m!\A(?:pl:)?/(\w+(?:/\w+)*)/(\w*)\z!) {
         my ($mod, $func) = ($1, $2);
         # skip if package already exists, e.g. 'main'
@@ -41,14 +49,14 @@ sub request {
         $mod =~ s!/!::!g;
 
         if ($action eq 'list') {
-            return [502, "Action 'list' not implemented for ".
+            return [501, "Action 'list' not implemented for ".
                         "non-package entities"]
                 if length($func);
             no strict 'refs';
             my $spec = \%{"$mod\::SPEC"};
             return [200, "OK (list)", [grep {/\A\w+\z/} sort keys %$spec]];
         } elsif ($action eq 'meta' || $action eq 'call') {
-            return [502, "Action 'call' not implemented for package entity"]
+            return [501, "Action 'call' not implemented for package entity"]
                 if !length($func) && $action eq 'call';
             my $meta;
             {
@@ -90,7 +98,6 @@ sub request {
             }
 
             # call!
-            my $res;
             {
                 no strict 'refs';
                 $res = &{"$mod\::$func"}(@args);
@@ -100,10 +107,9 @@ sub request {
             if ($meta->{result_naked}) {
                 $res = [200, "OK (envelope added by ".__PACKAGE__.")", $res];
             }
-            return $res;
 
         } else {
-            return [502, "Unknown/unsupported action '$action'"];
+            return [501, "Unknown/unsupported action '$action'"];
         }
     } elsif ($url =~ m!\Ahttps?:/(/?)!i) {
         my $is_unix = !$1;
@@ -138,10 +144,12 @@ sub request {
             unless $htres->{headers}{'content-type'} eq 'application/json';
         return [500, "Server error: didn't return Riap 1.1 response (".$htres->{headers}{'x-riap-v'}.")"]
             unless $htres->{headers}{'x-riap-v'} =~ /\A1\.1(\.\d+)?\z/;
-        return $json->decode($htres->{content});
+        $res = $json->decode($htres->{content});
     } else {
-        return [502, "Unsupported scheme or bad URL '$url'"];
+        return [501, "Unsupported scheme or bad URL '$url'"];
     }
+
+    check_riap_res($res);
 }
 
 1;
