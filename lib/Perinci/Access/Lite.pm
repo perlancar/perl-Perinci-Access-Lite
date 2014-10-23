@@ -7,7 +7,7 @@ use 5.010001;
 use strict;
 use warnings;
 
-use Perinci::AccessUtil::Check qw(check_riap_res);
+use Perinci::AccessUtil qw(strip_riap_stuffs_from_res);
 
 sub new {
     my ($class, %args) = @_;
@@ -149,7 +149,7 @@ sub request {
         return [501, "Unsupported scheme or bad URL '$url'"];
     }
 
-    check_riap_res($res);
+    strip_riap_stuffs_from_res($res);
 }
 
 1;
