@@ -109,6 +109,14 @@ sub request {
                 $res = [200, "OK (envelope added by ".__PACKAGE__.")", $res];
             }
 
+            # add hint that result is binary
+            if (defined $res->[2]) {
+                if ($meta->{result} && $meta->{result}{schema} &&
+                        $meta->{result}{schema}[0] eq 'buf') {
+                    $res->[3]{'x.hint.result_binary'} = 1;
+                }
+            }
+
         } else {
             return [501, "Unknown/unsupported action '$action'"];
         }
