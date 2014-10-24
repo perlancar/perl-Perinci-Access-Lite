@@ -1,5 +1,10 @@
 Revision history for Perinci-Access-Lite
 
+0.05    2014-10-24 (PERLANCAR)
+
+	- Add attribute: riap_version.
+
+
 0.04     2014-10-23 (PERLANCAR)
 
          - Support Riap 1.2 (check and strip 'riap.*' keys).
