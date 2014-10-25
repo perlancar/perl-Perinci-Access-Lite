@@ -219,6 +219,16 @@ This includes: Riap::Simple over pipe/TCP socket.
 =head2 $pa->request($action, $url, $extra) => hash
 
 
+=head1 ADDED RESULT METADATA
+
+This class might add the following property/attribute in result metadata:
+
+=head2 x.hint.result_binary => bool
+
+If result's schema type is C<buf>, then this class will set this attribute to
+true, to give hints to result formatters.
+
+
 =head1 SEE ALSO
 
 L<Perinci::Access>
