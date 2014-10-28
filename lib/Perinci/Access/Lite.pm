@@ -32,6 +32,8 @@ sub __package_exists {
 sub request {
     my ($self, $action, $url, $extra) = @_;
 
+    #say "D:request($action => $url)";
+
     $extra //= {};
 
     my $v = $extra->{v} // 1.1;
@@ -42,12 +44,14 @@ sub request {
     my $res;
     if ($url =~ m!\A(?:pl:)?/(\w+(?:/\w+)*)/(\w*)\z!) {
         my ($modpath, $func) = ($1, $2);
-        (my $mod = $modpath) =~ s!/!::!g;
+        (my $pkg = $modpath) =~ s!/!::!g;
+        #say "D:modpath=$modpath, pkg=$pkg, package exists? ", __package_exists($pkg);
         # skip loading module if package already exists, e.g. 'main' (there is
         # no corresponding module) or packages from loaded modules
-        unless (__package_exists($mod)) {
+        unless (__package_exists($pkg)) {
+            #say "D:Loading $pkg ...";
             eval { require "$modpath.pm" };
-            return [500, "Can't load module $mod: $@"] if $@;
+            return [500, "Can't load module $pkg: $@"] if $@;
         }
 
         if ($action eq 'list') {
@@ -55,7 +59,7 @@ sub request {
                         "non-package entities"]
                 if length($func);
             no strict 'refs';
-            my $spec = \%{"$mod\::SPEC"};
+            my $spec = \%{"$pkg\::SPEC"};
             return [200, "OK (list)", [grep {/\A\w+\z/} sort keys %$spec]];
         } elsif ($action eq 'info') {
             my $data = {
@@ -73,13 +77,13 @@ sub request {
             {
                 no strict 'refs';
                 if (length $func) {
-                    $meta = ${"$mod\::SPEC"}{$func}
+                    $meta = ${"$pkg\::SPEC"}{$func}
                         or return [500, "No metadata for '$url'"];
                 } else {
-                    $meta = ${"$mod\::SPEC"}{':package'} // {v=>1.1};
+                    $meta = ${"$pkg\::SPEC"}{':package'} // {v=>1.1};
                 }
-                $meta->{entity_v}    //= ${"$mod\::VERSION"};
-                $meta->{entity_date} //= ${"$mod\::DATE"};
+                $meta->{entity_v}    //= ${"$pkg\::VERSION"};
+                $meta->{entity_date} //= ${"$pkg\::DATE"};
             }
 
             require Perinci::Sub::Normalize;
@@ -111,7 +115,7 @@ sub request {
             # call!
             {
                 no strict 'refs';
-                $res = &{"$mod\::$func"}(@args);
+                $res = &{"$pkg\::$func"}(@args);
             }
 
             # add envelope
