@@ -41,13 +41,14 @@ sub request {
 
     my $res;
     if ($url =~ m!\A(?:pl:)?/(\w+(?:/\w+)*)/(\w*)\z!) {
-        my ($mod, $func) = ($1, $2);
-        # skip if package already exists, e.g. 'main'
+        my ($modpath, $func) = ($1, $2);
+        (my $mod = $modpath) =~ s!/!::!g;
+        # skip if package already exists, e.g. 'main' or packages from loaded
+        # modules
         unless (__package_exists($mod)) {
-            eval { require "$mod.pm" };
+            eval { require "$modpath.pm" };
             return [500, "Can't load module $mod: $@"] if $@;
         }
-        $mod =~ s!/!::!g;
 
         if ($action eq 'list') {
             return [501, "Action 'list' not implemented for ".
@@ -56,6 +57,15 @@ sub request {
             no strict 'refs';
             my $spec = \%{"$mod\::SPEC"};
             return [200, "OK (list)", [grep {/\A\w+\z/} sort keys %$spec]];
+        } elsif ($action eq 'info') {
+            my $data = {
+                uri => "$modpath/$func",
+                type => (!length($func) ? "package" :
+                             $func =~ /\A\w+\z/ ? "function" :
+                                 $func =~ /\A[\@\$\%]/ ? "variable" :
+                                     "?"),
+            };
+            return [200, "OK (info)", $data];
         } elsif ($action eq 'meta' || $action eq 'call') {
             return [501, "Action 'call' not implemented for package entity"]
                 if !length($func) && $action eq 'call';
