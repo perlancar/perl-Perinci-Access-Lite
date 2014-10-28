@@ -1,5 +1,12 @@
 Revision history for Perinci-Access-Lite
 
+0.07    2014-10-28 (PERLANCAR)
+
+	- Support info action for local (pm) URL scheme.
+
+	- Document about x.hint.result_binary.
+
+
 0.06    2014-10-24 (PERLANCAR)
 
 	- Give hint in result metadata when result is binary (buf).
