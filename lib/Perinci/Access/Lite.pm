@@ -43,8 +43,8 @@ sub request {
     if ($url =~ m!\A(?:pl:)?/(\w+(?:/\w+)*)/(\w*)\z!) {
         my ($modpath, $func) = ($1, $2);
         (my $mod = $modpath) =~ s!/!::!g;
-        # skip if package already exists, e.g. 'main' or packages from loaded
-        # modules
+        # skip loading module if package already exists, e.g. 'main' (there is
+        # no corresponding module) or packages from loaded modules
         unless (__package_exists($mod)) {
             eval { require "$modpath.pm" };
             return [500, "Can't load module $mod: $@"] if $@;
