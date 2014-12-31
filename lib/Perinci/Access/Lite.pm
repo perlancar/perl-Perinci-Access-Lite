@@ -48,7 +48,8 @@ sub request {
         #say "D:modpath=$modpath, pkg=$pkg, package exists? ", __package_exists($pkg);
         # skip loading module if package already exists, e.g. 'main' (there is
         # no corresponding module) or packages from loaded modules
-        unless (__package_exists($pkg)) {
+        my $pkg_exists = __package_exists($pkg);
+        unless ($pkg_exists) {
             #say "D:Loading $pkg ...";
             eval { require "$modpath.pm" };
             return [500, "Can't load module $pkg: $@"] if $@;
@@ -78,7 +79,11 @@ sub request {
                 no strict 'refs';
                 if (length $func) {
                     $meta = ${"$pkg\::SPEC"}{$func}
-                        or return [500, "No metadata for '$url'"];
+                        or return [
+                            500, "No metadata for '$url' (".
+                                ($pkg_exists ? "package $pkg exists, perhaps you mentioned '$pkg' somewhere without actually loading the module, or perhaps '$func' is a typo?" :
+                                     "package $pkg doesn't exist, perhaps '$modpath' or '$func' is a typo?") .
+                                ")"];
                 } else {
                     $meta = ${"$pkg\::SPEC"}{':package'} // {v=>1.1};
                 }
