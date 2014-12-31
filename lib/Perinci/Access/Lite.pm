@@ -81,8 +81,8 @@ sub request {
                     $meta = ${"$pkg\::SPEC"}{$func}
                         or return [
                             500, "No metadata for '$url' (".
-                                ($pkg_exists ? "package $pkg exists, perhaps you mentioned '$pkg' somewhere without actually loading the module, or perhaps '$func' is a typo?" :
-                                     "package $pkg doesn't exist, perhaps '$modpath' or '$func' is a typo?") .
+                                ($pkg_exists ? "package '$pkg' exists, perhaps you mentioned '$pkg' somewhere without actually loading the module, or perhaps '$func' is a typo?" :
+                                     "package '$pkg' doesn't exist, perhaps '$modpath' or '$func' is a typo?") .
                                 ")"];
                 } else {
                     $meta = ${"$pkg\::SPEC"}{':package'} // {v=>1.1};
