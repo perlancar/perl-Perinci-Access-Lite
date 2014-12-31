@@ -1,5 +1,12 @@
 Revision history for Perinci-Access-Lite
 
+0.08    2014-12-31 (PERLANCAR)
+
+	- No functional changes.
+
+	- Add more helpful error message for 'No metadata for ...'.
+
+
 0.07    2014-10-28 (PERLANCAR)
 
 	- Support info action for local (pm) URL scheme.
