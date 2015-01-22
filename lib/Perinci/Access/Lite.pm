@@ -95,8 +95,14 @@ sub request {
             $meta = Perinci::Sub::Normalize::normalize_function_metadata($meta);
             return [200, "OK ($action)", $meta] if $action eq 'meta';
 
+            # form args (and add special args)
+            my $args = { %{$extra->{args} // {}} }; # shallow copy
+            if ($meta->{features} && $meta->{features}{progress}) {
+                require Progress::Any;
+                $args->{-progress} = Progress::Any->get_indicator;
+            }
+
             # convert args
-            my $args = $extra->{args} // {};
             my $aa = $meta->{args_as} // 'hash';
             my @args;
             if ($aa =~ /array/) {
