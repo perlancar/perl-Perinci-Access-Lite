@@ -1,5 +1,11 @@
 Revision history for Perinci-Access-Lite
 
+0.09    2015-01-22 (PERLANCAR)
+
+	- Add -progress special argument when function expects it, like in
+	  Perinci::Access::Perl.
+
+
 0.08    2014-12-31 (PERLANCAR)
 
 	- No functional changes.
