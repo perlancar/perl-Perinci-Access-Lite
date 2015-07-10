@@ -30,6 +30,8 @@ sub __package_exists {
 }
 
 sub request {
+    no strict 'refs';
+
     my ($self, $action, $url, $extra) = @_;
 
     #say "D:request($action => $url)";
@@ -45,11 +47,12 @@ sub request {
     if ($url =~ m!\A(?:pl:)?/(\w+(?:/\w+)*)/(\w*)\z!) {
         my ($modpath, $func) = ($1, $2);
         (my $pkg = $modpath) =~ s!/!::!g;
-        #say "D:modpath=$modpath, pkg=$pkg, package exists? ", __package_exists($pkg);
-        # skip loading module if package already exists, e.g. 'main' (there is
-        # no corresponding module) or packages from loaded modules
         my $pkg_exists = __package_exists($pkg);
-        unless ($pkg_exists) {
+      LOAD:
+        {
+            # special names
+            last LOAD if $pkg =~ /\A(main)\z/;
+            last if $pkg_exists && defined(${"$pkg\::VERSION"});
             #say "D:Loading $pkg ...";
             eval { require "$modpath.pm" };
             return [500, "Can't load module $pkg: $@"] if $@;
