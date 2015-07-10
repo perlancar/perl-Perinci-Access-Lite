@@ -1,5 +1,16 @@
 Revision history for Perinci-Access-Lite
 
+0.10    2015-07-10 (PERLANCAR)
+
+        - [Experimental] Previously, a module was assumed to be loaded when its
+          package exists. However, this presents a problem because declaring a
+          package like Foo::Bar::Baz automatically makes Foo and Foo::Bar
+          packages spring into existence (this is how Perl works), even though
+          the module might not be loaded yet. So now an additional check is
+          performed: whether $<PKG>::VERSION is defined. There will sometimes be
+          false negatives, but for proper modules this will not be a problem.
+
+
 0.09    2015-01-22 (PERLANCAR)
 
 	- Add -progress special argument when function expects it, like in
