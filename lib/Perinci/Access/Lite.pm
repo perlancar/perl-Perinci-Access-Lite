@@ -45,11 +45,16 @@ sub request {
 
     my $res;
     if ($url =~ m!\A(?:pl:)?/(\w+(?:/\w+)*)/(\w*)\z!) {
-        my ($modpath, $func) = ($1, $2);
-        (my $pkg = $modpath) =~ s!/!::!g;
-        my $pkg_exists = __package_exists($pkg);
+        my ($mod_pm, $func) = ($1, $2);
+        (my $pkg = $mod_pm) =~ s!/!::!g;
+        $mod_pm .= ".pm";
+
+        my $pkg_exists;
+
       LOAD:
         {
+            last if exists $INC{$modpath};
+            $pkg_exists = __package_exists($pkg);
             # special names
             last LOAD if $pkg =~ /\A(main)\z/;
             last if $pkg_exists && defined(${"$pkg\::VERSION"});
