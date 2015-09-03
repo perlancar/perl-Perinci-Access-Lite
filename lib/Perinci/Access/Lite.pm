@@ -45,21 +45,21 @@ sub request {
 
     my $res;
     if ($url =~ m!\A(?:pl:)?/(\w+(?:/\w+)*)/(\w*)\z!) {
-        my ($mod_pm, $func) = ($1, $2);
-        (my $pkg = $mod_pm) =~ s!/!::!g;
-        $mod_pm .= ".pm";
+        my ($mod_uripath, $func) = ($1, $2);
+        (my $pkg = $mod_uripath) =~ s!/!::!g;
+        my $mod_pm = "$mod_uripath.pm";
 
         my $pkg_exists;
 
       LOAD:
         {
-            last if exists $INC{$modpath};
+            last if exists $INC{$mod_pm};
             $pkg_exists = __package_exists($pkg);
             # special names
             last LOAD if $pkg =~ /\A(main)\z/;
             last if $pkg_exists && defined(${"$pkg\::VERSION"});
             #say "D:Loading $pkg ...";
-            eval { require "$modpath.pm" };
+            eval { require $mod_pm };
             return [500, "Can't load module $pkg: $@"] if $@;
         }
 
@@ -72,7 +72,7 @@ sub request {
             return [200, "OK (list)", [grep {/\A\w+\z/} sort keys %$spec]];
         } elsif ($action eq 'info') {
             my $data = {
-                uri => "$modpath/$func",
+                uri => "$mod_uripath/$func",
                 type => (!length($func) ? "package" :
                              $func =~ /\A\w+\z/ ? "function" :
                                  $func =~ /\A[\@\$\%]/ ? "variable" :
@@ -90,7 +90,7 @@ sub request {
                         or return [
                             500, "No metadata for '$url' (".
                                 ($pkg_exists ? "package '$pkg' exists, perhaps you mentioned '$pkg' somewhere without actually loading the module, or perhaps '$func' is a typo?" :
-                                     "package '$pkg' doesn't exist, perhaps '$modpath' or '$func' is a typo?") .
+                                     "package '$pkg' doesn't exist, perhaps '$mod_uripath' or '$func' is a typo?") .
                                 ")"];
                 } else {
                     $meta = ${"$pkg\::SPEC"}{':package'} // {v=>1.1};
