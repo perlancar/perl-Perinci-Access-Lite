@@ -1,5 +1,14 @@
 Revision history for Perinci-Access-Lite
 
+0.11    2015-09-03 (PERLANCAR)
+
+	- No functional changes.
+
+	- [dist] Move spec prereqs from RuntimeRequires to
+	  DevelopRecommends to reduce deps but still allow indicating spec
+	  requirement.
+
+
 0.10    2015-07-10 (PERLANCAR)
 
         - [Experimental] Previously, a module was assumed to be loaded when its
