@@ -101,7 +101,13 @@ sub request {
 
             require Perinci::Sub::Normalize;
             $meta = Perinci::Sub::Normalize::normalize_function_metadata($meta);
-            return [200, "OK ($action)", $meta] if $action eq 'meta';
+            if ($action eq 'meta') {
+                $meta->{_orig_args_as} = $meta->{args_as};
+                $meta->{args_as} = 'hash';
+                $meta->{_orig_result_naked} = $meta->{result_naked};
+                $meta->{result_naked} = 0;
+                return [200, "OK ($action)", $meta];
+            }
 
             # form args (and add special args)
             my $args = { %{$extra->{args} // {}} }; # shallow copy

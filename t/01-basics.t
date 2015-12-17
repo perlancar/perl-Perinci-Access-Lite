@@ -33,13 +33,13 @@ subtest "local (pl)" => sub {
         name   => 'meta func',
         action => 'meta',
         uri    => '/Perinci/Examples/gen_array',
-        # XXX test meta result and whether it's normalized
+        # XXX test meta result and whether it's normalized and whether args_as/result_naked is modified and their orig also returned in _orig_*
     );
     test_riap(
         name   => 'meta pkg',
         action => 'meta',
         uri    => '/Perinci/Examples/',
-        # XXX test meta result and whether it's normalized
+        # XXX test meta result and whether it's normalized and whether args_as/result_naked is modified and their orig also returned in _orig_*
     );
     test_riap(
         name   => 'list func',
