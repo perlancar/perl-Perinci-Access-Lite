@@ -162,8 +162,8 @@ sub request {
     } elsif ($url =~ m!\Ahttps?:/(/?)!i) {
         my $is_unix = !$1;
         my $ht;
-        require JSON;
-        state $json = JSON->new->allow_nonref;
+        require JSON::MaybeXS;
+        state $json = JSON::MaybeXS->new->allow_nonref;
         if ($is_unix) {
             require HTTP::Tiny::UNIX;
             $ht = HTTP::Tiny::UNIX->new;
