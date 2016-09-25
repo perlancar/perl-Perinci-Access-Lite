@@ -1,5 +1,12 @@
 Revision history for Perinci-Access-Lite
 
+0.14    2016-09-25 (PERLANCAR)
+
+	- Revert from using JSON::MaybeXS to JSON because JSON::MaybeXS is
+	  currently not depakable (hard dependency to XS module
+	  Cpanel::JSON::XS).
+
+
 0.13    2016-03-16 (PERLANCAR)
 
 	- No functional changes.
