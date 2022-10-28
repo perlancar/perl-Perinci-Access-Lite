@@ -1,13 +1,15 @@
 package Perinci::Access::Lite;
 
-# DATE
-# VERSION
-
 use 5.010001;
 use strict;
 use warnings;
 
 use Perinci::AccessUtil qw(strip_riap_stuffs_from_res);
+
+# AUTHORITY
+# DATE
+# DIST
+# VERSION
 
 sub new {
     my ($class, %args) = @_;
@@ -17,7 +19,7 @@ sub new {
 
 # copy-pasted from SHARYANTO::Package::Util
 sub __package_exists {
-    no strict 'refs';
+    no strict 'refs'; ## no critic: TestingAndDebugging::ProhibitNoStrict
 
     my $pkg = shift;
 
@@ -30,7 +32,7 @@ sub __package_exists {
 }
 
 sub request {
-    no strict 'refs';
+    no strict 'refs'; ## no critic: TestingAndDebugging::ProhibitNoStrict
 
     my ($self, $action, $url, $extra) = @_;
 
@@ -67,7 +69,7 @@ sub request {
             return [501, "Action 'list' not implemented for ".
                         "non-package entities"]
                 if length($func);
-            no strict 'refs';
+            no strict 'refs'; ## no critic: TestingAndDebugging::ProhibitNoStrict
             my $spec = \%{"$pkg\::SPEC"};
             return [200, "OK (list)", [grep {/\A\w+\z/} sort keys %$spec]];
         } elsif ($action eq 'info') {
@@ -84,7 +86,7 @@ sub request {
                 if !length($func) && $action eq 'call';
             my $meta;
             {
-                no strict 'refs';
+                no strict 'refs'; ## no critic: TestingAndDebugging::ProhibitNoStrict
                 if (length $func) {
                     $meta = ${"$pkg\::SPEC"}{$func}
                         or return [
@@ -139,7 +141,7 @@ sub request {
 
             # call!
             {
-                no strict 'refs';
+                no strict 'refs'; ## no critic: TestingAndDebugging::ProhibitNoStrict
                 $res = &{"$pkg\::$func"}(@args);
             }
 
@@ -231,7 +233,7 @@ Differences with Perinci::Access:
 
 =item * For network access, uses HTTP::Tiny module family instead of LWP
 
-This results in fewer dependencies. L<HTTP::Tiny> (and L<HTTP::Tiny::Unix>) are
+This results in fewer dependencies. L<HTTP::Tiny> (and L<HTTP::Tiny::UNIX>) are
 even specified as runtime recommends dependencies instead of runtime requires,
 so if your script or downstream library requires HTTP access, you'll need to
 specify the dependencies explicitly.

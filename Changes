@@ -1,3 +1,9 @@
+0.150   2022-10-28  Released-By: PERLANCAR; Urgency: medium
+
+        - Downgrade HTTP::Tiny, HTTP::Tiny::UNIX, Progress::Any as runtime
+          recommends for fewer dependencies.
+
+
 0.14    2016-09-25  Released-By: PERLANCAR
 
 	- Revert from using JSON::MaybeXS to JSON because JSON::MaybeXS is
