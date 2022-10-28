@@ -231,7 +231,10 @@ Differences with Perinci::Access:
 
 =item * For network access, uses HTTP::Tiny module family instead of LWP
 
-This results in fewer dependencies.
+This results in fewer dependencies. L<HTTP::Tiny> (and L<HTTP::Tiny::Unix>) are
+even specified as runtime recommends dependencies instead of runtime requires,
+so if your script or downstream library requires HTTP access, you'll need to
+specify the dependencies explicitly.
 
 =item * No wrapping, no argument checking
 
