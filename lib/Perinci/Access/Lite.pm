@@ -14,6 +14,7 @@ use Perinci::AccessUtil qw(strip_riap_stuffs_from_res);
 sub new {
     my ($class, %args) = @_;
     $args{riap_version} //= 1.1;
+    $args{load} //= 1;
     bless \%args, $class;
 }
 
@@ -49,20 +50,38 @@ sub request {
     if ($url =~ m!\A(?:pl:)?/(\w+(?:/\w+)*)/(\w*)\z!) {
         my ($mod_uripath, $func) = ($1, $2);
         (my $pkg = $mod_uripath) =~ s!/!::!g;
-        my $mod_pm = "$mod_uripath.pm";
 
-        my $pkg_exists;
+        my $pkg_exists = __package_exists($pkg);
 
-      LOAD:
-        {
-            last if exists $INC{$mod_pm};
-            $pkg_exists = __package_exists($pkg);
-            # special names
-            last LOAD if $pkg =~ /\A(main)\z/;
-            last if $pkg_exists && defined(${"$pkg\::VERSION"});
-            #say "D:Loading $pkg ...";
-            eval { require $mod_pm };
-            return [500, "Can't load module $pkg: $@"] if $@;
+      TRY_RIAP_SUBROUTINE:
+        while (1) {
+            my $pkg = $pkg;                 # override outer scope's
+            my $mod_uripath = $mod_uripath; # override outer scope's
+            my $pkg_exists;                 # override outer scope's
+
+          LOAD_MODULE:
+            {
+                last unless $self->{load};
+                my $mod_pm = "$mod_uripath.pm";
+                last if exists $INC{$mod_pm};
+                $pkg_exists = __package_exists($pkg);
+                # special names
+                last LOAD if $pkg =~ /\A(main)\z/;
+                last if $pkg_exists && defined(${"$pkg\::VERSION"});
+                #say "D:Loading $pkg ...";
+                eval { require $mod_pm };
+                return [500, "Can't load module $pkg: $@"] if $@;
+            }
+
+            no strict 'refs'; ## no critic: TestingAndDebugging::ProhibitNoStrict
+            if ($pkg_exists && defined(&{"$pkg\::_riap"})) {
+                my $res = &{"$pkg\::_riap"}($action, $url, $extra);
+                return $res if defined $res;
+            }
+
+            last if $self->{load};
+            $pkg =~ s/::\w+\z// or last;
+            $mod_uripath = s!/[^/]+\z!!;
         }
 
         if ($action eq 'list') {
@@ -215,11 +234,19 @@ prerequisites but does fewer things. The things it supports:
 
 =item * Local (in-process) access to Perl modules and functions
 
-Currently only C<call>, C<meta>, and C<list> actions are implemented. Variables
-and other entities are not yet supported.
+(This behavior is not supported by L<Perinci::Access> /
+L<Perinci::Access::Perl>). The Lite client will first check if C<_riap>
+subroutine is defined in the associated package. If that is the case, will call
+the subroutine with the same arguments passed to C<request()>: C<< ($action,
+$url, $extras) >>. If the returned result from the subroutine is C<undef>,
+signifying that the subroutine declines to answer the request, and the C<load>
+attribute is set to false, the client will then proceed to parent packages'
+C<_riap> until it gets a response. If all C<_riap> subroutines decline, it will
+search C<%SPEC> package variable.
 
-The C<list> action only gathers keys from C<%SPEC> and do not yet list
-subpackages.
+Currently only C<call>, C<meta>, and C<list> actions are implemented. Variables
+and other entities are not yet supported. The C<list> action only gathers keys
+from C<%SPEC> and do not yet list subpackages.
 
 =item * HTTP/HTTPS
 
@@ -254,11 +281,22 @@ This includes: Riap::Simple over pipe/TCP socket.
 
 =head1 ATTRIBUTES
 
-=head2 riap_version => float (default: 1.1)
+=head2 riap_version
+
+Float, default 1.1. Will be passed to Riap requests.
+
+=head2 load
+
+Bool. Default true. Whether to load modules.
+
 
 =head1 METHODS
 
 =head2 new(%attrs) => obj
+
+See L</ATTRIBUTES> for known attributes.
+
+=back
 
 =head2 $pa->request($action, $url, $extra) => hash
 
